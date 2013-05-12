@@ -157,7 +157,9 @@ PROCESS_THREAD(udp_client_process, ev, data)
 
   print_local_addresses();
 
+  /*
   static resolv_status_t status = RESOLV_STATUS_UNCACHED;
+
   while(status != RESOLV_STATUS_CACHED) {
     status = set_connection_address(&ipaddr);
 
@@ -168,7 +170,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
       PROCESS_YIELD();
     }
   }
-
+*/
   /* new connection with remote host */
   client_conn = udp_new(&ipaddr, UIP_HTONS(3000), NULL);
   udp_bind(client_conn, UIP_HTONS(3001));
@@ -180,13 +182,13 @@ PROCESS_THREAD(udp_client_process, ev, data)
 
   etimer_set(&et, SEND_INTERVAL);
   while(1) {
-    PROCESS_YIELD();
-    if(etimer_expired(&et)) {
+    //PROCESS_YIELD();
+    //if(etimer_expired(&et)) {
       timeout_handler();
-      etimer_restart(&et);
-    } else if(ev == tcpip_event) {
-      tcpip_handler();
-    }
+     // etimer_restart(&et);
+    //} else if(ev == tcpip_event) {
+      //tcpip_handler();
+    //}
   }
 
   PROCESS_END();

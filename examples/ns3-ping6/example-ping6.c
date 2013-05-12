@@ -1,7 +1,4 @@
 /*
- * Copyright (c) 2006, Swedish Institute of Computer Science.
- * All rights reserved.
- *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -27,59 +24,10 @@
  * SUCH DAMAGE.
  *
  * This file is part of the Contiki operating system.
- *
  */
 
-/**
- * \file
- *         A very simple Contiki application showing how Contiki programs look
- * \author
- *         Adam Dunkels <adam@sics.se>
- */
+#include "ping6.h"
 
-#include "contiki.h"
-#include <unistd.h>
-#include <sys/types.h>
-
-#include <stdio.h> /* For printf() */
 /*---------------------------------------------------------------------------*/
-
-static process_event_t event_data_ready;
-static struct etimer timer;
-static int counter;
-PROCESS(hello_world_process, "Hello world process");
-AUTOSTART_PROCESSES(&hello_world_process);
-/*---------------------------------------------------------------------------*/
-
-void repeat(void)
-{
-  puts("repeat");
-  etimer_set(&timer, 3);
-}
-
-PROCESS_THREAD(hello_world_process, ev, data)
-{
-
-  PROCESS_BEGIN();
-
-  counter = 0;
-  event_data_ready = process_alloc_event();
-
-  etimer_set(&timer, 3);
-  while(counter < 5)
-  {
-    PROCESS_YIELD();
-    repeat();
-    printf("process %d set timer %p\n", getpid(),&timer);
-
-   // PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER);
-    printf("Process %d says Hello, world\n", getpid());
-    printf("Process %d Timer expired after 3 simulated m_seconds ;)\n",getpid());
-
-    etimer_reset(&timer);
-    counter++;
-  }
-  
-    PROCESS_END();
-}
+AUTOSTART_PROCESSES(&ping6_process);
 /*---------------------------------------------------------------------------*/
