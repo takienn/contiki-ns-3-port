@@ -65,8 +65,6 @@ timer_set(struct timer *t, clock_time_t interval)
 {
   t->interval = interval;
   t->start = clock_time();
-  //convert time to nanoseconds
-  ipc_settimer((uint64_t)interval);
 }
 /*---------------------------------------------------------------------------*/
 /**
@@ -125,9 +123,7 @@ timer_expired(struct timer *t)
   /* Note: Can not return diff >= t->interval so we add 1 to diff and return
      t->interval < diff - required to avoid an internal error in mspgcc. */
   clock_time_t diff = (clock_time() - t->start) + 1;
-
-  //XXX forcing contiki to consider equality as valid expiration condition
-  return t->interval <= diff;
+  return t->interval < diff;
 
 }
 /*---------------------------------------------------------------------------*/

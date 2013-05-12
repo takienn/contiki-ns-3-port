@@ -38,48 +38,18 @@
  */
 
 #include "contiki.h"
-#include <unistd.h>
-#include <sys/types.h>
 
 #include <stdio.h> /* For printf() */
 /*---------------------------------------------------------------------------*/
-
-static process_event_t event_data_ready;
-static struct etimer timer;
-static int counter;
 PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
 /*---------------------------------------------------------------------------*/
-
-void repeat(void)
-{
-  puts("repeat");
-  etimer_set(&timer, 3);
-}
-
 PROCESS_THREAD(hello_world_process, ev, data)
 {
-
   PROCESS_BEGIN();
 
-  counter = 0;
-  event_data_ready = process_alloc_event();
-
-  etimer_set(&timer, 3);
-  while(counter < 5)
-  {
-    PROCESS_YIELD();
-    repeat();
-    printf("process %d set timer %p\n", getpid(),&timer);
-
-   // PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER);
-    printf("Process %d says Hello, world\n", getpid());
-    printf("Process %d Timer expired after 3 simulated m_seconds ;)\n",getpid());
-
-    etimer_reset(&timer);
-    counter++;
-  }
+  printf("Hello, world\n");
   
-    PROCESS_END();
+  PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
