@@ -2,7 +2,7 @@
 
 /* IPC Operations */
 size_t ipc_read(uint8_t *buf);
-void ipc_write(void *buf, size_t len);
+void ipc_write(uint8_t *buf, size_t len);
 
 //#include <stdio.h>
 //#include <inttypes.h>
