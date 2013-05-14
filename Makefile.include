@@ -209,6 +209,11 @@ ifndef CUSTOM_RULE_C_TO_CO
 	$(CC) $(CFLAGS) -DAUTOSTART_ENABLE -c $< -o $@
 endif
 
+ifndef CUSTOM_RULE_C_TO_SO
+%.so: %.c
+	$(CC) -shared -fPIC -g $(CFLAGS) -DAUTOSTART_ENABLE $< -o $@
+endif
+
 ifndef AROPTS
   AROPTS = rcf
 endif
