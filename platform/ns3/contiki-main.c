@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
 		puts("missing arguments!\n");
 		exit(0);
 	}
-	ContikiMain(argv[1], atoi(argv[2]), argv[3]);
+	ContikiMain(argv[1], atoi(argv[2]), argv[3], argv[4]);
 
 	return 0;
 
