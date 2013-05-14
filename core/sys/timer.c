@@ -65,7 +65,7 @@ timer_set(struct timer *t, clock_time_t interval)
 {
   t->interval = interval;
   t->start = clock_time();
-  ipc_settimer(interval, 0);
+  ipc_settimer((uint64_t)interval, 0);
 }
 /*---------------------------------------------------------------------------*/
 /**
