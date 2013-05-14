@@ -47,6 +47,6 @@ rtimer_arch_schedule(rtimer_clock_t t)
 	 (c % 1000) * 1000);
 
   // Convert time to nanoseconds
-  ipc_settimer(c*1000*1000);
+  ipc_settimer((uint64_t)c, 1);
 }
 /*---------------------------------------------------------------------------*/
