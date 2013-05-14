@@ -19,7 +19,7 @@ extern "C" {
 
     void ipc_init(char *id);
     size_t ipc_read(uint8_t *buf);
-    void ipc_write(void *buf, size_t len);
+    void ipc_write(uint8_t *buf, size_t len);
     uint64_t ipc_time(void);
     void ipc_settimer(uint64_t interval, uint8_t type);
 

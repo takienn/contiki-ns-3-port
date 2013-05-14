@@ -157,10 +157,7 @@ size_t ipc_read(uint8_t *buf) {
 
 }
 
-void ipc_write(void *buf, size_t len) {
-
-	//XXX The idea is that ns-3 needs to set memory to zero after each read
-	// that way contiki would know that ns-3 processed its last write request.
+void ipc_write(uint8_t *buf, size_t len) {
 
 	// As reading, this function writes data with size information
 	//XXX maybe checking that len <= traffic_size
