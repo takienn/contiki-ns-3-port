@@ -258,7 +258,7 @@ do_event(void)
    * call the poll handlers inbetween.
    */
 
-  while(nevents > 0) {
+  if(nevents > 0) {
     
     /* There are events that we should deliver. */
     ev = events[fevent].ev;
