@@ -66,7 +66,7 @@ timer_set(struct timer *t, clock_time_t interval)
   t->interval = interval;
   t->start = clock_time();
   //convert time to nanoseconds
-  ipc_settimer((uint64_t)interval);
+  ipc_settimer((uint64_t)interval, 0);
 }
 /*---------------------------------------------------------------------------*/
 /**
