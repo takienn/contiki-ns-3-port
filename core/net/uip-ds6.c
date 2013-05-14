@@ -48,8 +48,6 @@
 #include "net/uip-ds6.h"
 #include "net/uip-packetqueue.h"
 
-#if UIP_CONF_IPV6
-
 #define DEBUG DEBUG_NONE
 #include "net/uip-debug.h"
 
@@ -878,4 +876,3 @@ uip_ds6_compute_reachable_time(void)
 
 
 /** @} */
-#endif /* UIP_CONF_IPV6 */

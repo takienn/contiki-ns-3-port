@@ -35,7 +35,6 @@
 #include "lib/list.h"
 #include "lib/memb.h"
 
-#if UIP_CONF_IPV6
 
 #include <string.h>
 
@@ -369,4 +368,4 @@ uip_ds6_defrt_periodic(void)
 }
 /*---------------------------------------------------------------------------*/
 
-#endif /* UIP_CONF_IPV6 */
+
