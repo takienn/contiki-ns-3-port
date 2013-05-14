@@ -58,3 +58,17 @@ leds_arch_set(unsigned char l)
   leds = l;
 }
 /*---------------------------------------------------------------------------*/
+void
+leds_on(unsigned char l)
+{
+}
+
+void
+leds_off(unsigned char l)
+{
+}
+
+void
+leds_toggle(unsigned char l)
+{
+}
