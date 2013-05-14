@@ -40,16 +40,29 @@
 #include "contiki.h"
 
 #include <stdio.h> /* For printf() */
+static int counter = 0;
 /*---------------------------------------------------------------------------*/
 PROCESS(hello_world_process, "Hello world process");
 AUTOSTART_PROCESSES(&hello_world_process);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(hello_world_process, ev, data)
 {
-  PROCESS_BEGIN();
+	static struct etimer timer;
 
-  printf("Hello, world\n");
+  PROCESS_BEGIN();
+  etimer_set(&timer, 1*CLOCK_CONF_SECOND);
+
+  while (counter <10)
+  {
+	  PROCESS_YIELD();
+	  printf("Hello, world\n");
+	  puts("timer expired after 1 sec");
+	  etimer_set(&timer, 1*CLOCK_CONF_SECOND);
+	  counter++;
+  }
+
   
+
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
