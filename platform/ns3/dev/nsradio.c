@@ -1,7 +1,7 @@
 #include "dev/nsradio.h"
 
 /* IPC Operations */
-size_t ipc_read(uint8_t *buf);
+size_t ipc_read(void *buf);
 void ipc_write(uint8_t *buf, size_t len);
 
 //#include <stdio.h>
@@ -86,7 +86,15 @@ radio_send(const void *payload, unsigned short payload_len)
   /*  Write to ipc memory using payload/payload_len.
    *  In PHY Overlay mode, payload contains the compressed IPv6 header and the payload. 
    *  In MACPHY Overlay mode, payload contains the layer 3/4 headers and the payload */
-  ipc_write(payload, (size_t)payload_len);
+
+//  puts("radio_send");
+//  fflush(stdout);
+//  fwrite(payload, 1 ,payload_len, stdout);
+//  puts("\n");
+//  fflush (stdout);
+  static uint8_t tmpbuf[65534];
+  memcpy(tmpbuf,payload, payload_len);
+  ipc_write(tmpbuf, (size_t)payload_len);
   return transmit(payload_len);
 }
 /*---------------------------------------------------------------------------*/

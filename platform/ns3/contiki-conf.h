@@ -93,10 +93,10 @@ typedef unsigned short uip_stats_t;
 #endif /* NETSTACK_CONF_RADIO */
 
 #ifndef NETSTACK_CONF_FRAMER
-#define NETSTACK_CONF_FRAMER  framer_802154	//framer_nullmac
+#define NETSTACK_CONF_FRAMER   framer_802154
 #endif /* NETSTACK_CONF_FRAMER */
 
-#define NETSTACK_CONF_NETWORK sicslowpan_driver	//uip_driver
+#define NETSTACK_CONF_NETWORK sicslowpan_driver
 
 #define UIP_CONF_ROUTER                 1
 #ifndef UIP_CONF_IPV6_RPL

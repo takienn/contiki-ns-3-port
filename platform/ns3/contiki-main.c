@@ -18,14 +18,23 @@
 #include "net/rime.h"
 #include "net/rime/rime-udp.h"
 
+#define DEBUG 0
+
+#if DEBUG
+#include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
+#define PRINTADDR(addr) PRINTF(" %02x%02x:%02x%02x:%02x%02x:%02x%02x ", ((uint8_t *)addr)[0], ((uint8_t *)addr)[1], ((uint8_t *)addr)[2], ((uint8_t *)addr)[3], ((uint8_t *)addr)[4], ((uint8_t *)addr)[5], ((uint8_t *)addr)[6], ((uint8_t *)addr)[7])
 #define PRINT6ADDR(addr) PRINTF(" %02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x ", ((u8_t *)addr)[0], ((u8_t *)addr)[1], ((u8_t *)addr)[2], ((u8_t *)addr)[3], ((u8_t *)addr)[4], ((u8_t *)addr)[5], ((u8_t *)addr)[6], ((u8_t *)addr)[7], ((u8_t *)addr)[8], ((u8_t *)addr)[9], ((u8_t *)addr)[10], ((u8_t *)addr)[11], ((u8_t *)addr)[12], ((u8_t *)addr)[13], ((u8_t *)addr)[14], ((u8_t *)addr)[15])
 #define PRINTLLADDR(lladdr) PRINTF(" %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x ",lladdr.u8[0], lladdr.u8[1], lladdr.u8[2], lladdr.u8[3],lladdr.u8[4], lladdr.u8[5], lladdr.u8[6], lladdr.u8[7])
+#else
+#define PRINTF(...)
+#define PRINTADDR(addr)
+#define PRINT6ADDR(addr)
+#define PRINTLLADDR(lladdr)
+#endif
 
 #define UIP_IP_BUF                ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UIP_ICMP_BUF            ((struct uip_icmp_hdr *)&uip_buf[uip_l2_l3_hdr_len])
-
-sem_t *sem_go, *sem_done;
 
 PROCINIT(&etimer_process, &tcpip_process);
 SENSORS(&socket_sensor);
@@ -91,6 +100,9 @@ void log_message(char *m1, char *m2) {
 /*---------------------------------------------------------------------------*/
 int ContikiMain(char *node_id, int mode, char *addr, char *app) {
 
+	static int counter = 0;
+	static sem_t *sem_go, *sem_done;
+
 	char sem_go_name[128] = "/ns_contiki_sem_go_";
 	char sem_done_name[128] = "/ns_contiki_sem_done_";
 
@@ -102,26 +114,34 @@ int ContikiMain(char *node_id, int mode, char *addr, char *app) {
 
 
 
-	printf("Contiki %d is on\n", getpid());
+	PRINTF("Contiki %d is on\n", getpid());
 	ipc_init(node_id);
+	PRINTF("Contiki %d executed ipc_init\n", getpid());
 
 	/* Prepare process list */
 	process_init();
+	PRINTF("Contiki %d executed process_init\n", getpid());
 	/* Prepares a list of timers; starts the ctimer process */
 	ctimer_init();
+	PRINTF("Contiki %d executed ctimer_init\n", getpid());
 	/* Run configured Radio, RDC, MAC and Network init functions */
-	queuebuf_init();
+	//queuebuf_init();
 	netstack_init();
+	PRINTF("Contiki %d executed netstack_init\n", getpid());
 	/* Start all processes listed in PROCINIT macro */
 	procinit_init();
+	PRINTF("Contiki %d executed procinit\n", getpid());
 	/* Run Autostart processes (Application Layer) */
 	autostart_start(autostart_processes);
+	PRINTF("Contiki %d executed autostart_start\n", getpid());
 	dlloader_load(app, NULL);
+	PRINTF("Contiki %d executed dlloader_load\n", getpid());
 	while (1) {
 
+		PRINTF("contiki %d before new cycle %d\n",getpid(), counter);
 		sem_post(sem_done);
 		sem_wait(sem_go);
-		puts("contiki new cycle");
+		PRINTF("contiki %d new cycle %d\n", getpid(), counter);
 
 		/* Run a single cycle of the scheduler (event and poll processing) */
 		process_run();
@@ -135,7 +155,7 @@ int ContikiMain(char *node_id, int mode, char *addr, char *app) {
 
 int main(int argc, char *argv[]) {
 	if (argc < 4) {
-		puts("missing arguments!\n");
+		PRINTF("missing arguments!\n");
 		exit(0);
 	}
 	ContikiMain(argv[1], atoi(argv[2]), argv[3], argv[4]);

@@ -1,10 +1,19 @@
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <ipclayer.h>
+#include <stdio.h>
+
+#define DEBUG 0
+
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 uint64_t now;
 uint64_t old = 0;
@@ -48,8 +57,8 @@ void ipc_init(char *id) {
 	 is shared among all nodes.
 	 */
 
-	strcat(m_sem_time, id);
-	strcat(m_traffic_time, id);
+	//strcat(m_sem_time, id);
+	//strcat(m_traffic_time, id);
 	strcat(m_traffic_in, id);
 	strcat(m_traffic_out, id);
 	strcat(m_traffic_timer, id);
@@ -88,7 +97,7 @@ void ipc_init(char *id) {
 	if (ftruncate(shm_time, size_time) == -1)
 		perror("contiki ftruncate(shm_time) error");
 
-	if (ftruncate(shm_timer, size_time + sizeof(uint8_t)) == -1)
+	if (ftruncate(shm_timer, size_time + 1) == -1)
 		perror("contiki ftruncate(shm_timer) error");
 
 	/* Mapping shared memory fds
@@ -134,24 +143,39 @@ void ipc_init(char *id) {
 
 }
 
-size_t ipc_read(uint8_t *buf) {
+size_t ipc_read(void *buf) {
 
 	size_t input_size;
+
+	PRINTF("contiki %d trying to read using semaphore %s\n", getpid(), m_sem_in);
 
 	if (sem_wait(sem_in) == -1)
 		perror("contiki sem_wait() error");
 
+	PRINTF("contiki %d got sem_in\n", getpid());
 	// reading input size
 	memcpy(&input_size, addr_in, sizeof_size_t);
 
 	// reading input
-	memcpy(buf, addr_in + sizeof_size_t, traffic_size);
+	memcpy(buf, addr_in + sizeof_size_t, input_size);
 
 	// zeroing all
-	memset(addr_in, 0, traffic_size);
+	memset(addr_in, 0, traffic_size + sizeof_size_t);
 
 	if (sem_post(sem_in) == -1)
 		perror("contiki sem_post() error");
+
+	PRINTF("contiki %d finished read using semaphore %s\n", getpid(), m_sem_in);
+
+	if(input_size>0)
+	{
+		PRINTF("ipc_read");
+#if DEBUG
+		fwrite(buf,1,input_size,stdout);
+		puts("\n");
+#endif
+		fflush(stdout);
+	}
 
 	return input_size;
 
@@ -171,20 +195,22 @@ void ipc_write(uint8_t *buf, size_t len) {
 	// now writing data of that size
 	memcpy(addr_out + sizeof_size_t, buf, len);
 
-	printf("Contiki wrote packet of size %d\n", len);
+	PRINTF("Contiki wrote packet of size %d\n", len);
+#if DEBUG
+	puts("ipc_write");
+	fwrite(addr_out + sizeof_size_t, 1, len, stdout);
+	puts("\n");
 	fflush(stdout);
+#endif
 
 	if (sem_post(sem_out) == -1)
 		perror("contiki sem_wait() error");
 
-	puts("Contiki wrote a packet");
-	fflush(stdout);
+	PRINTF("Contiki wrote a packet\n");
 	sem_post(sem_traffic_done);
-	puts("Contiki waiting to proceed after writing a packet");
-	fflush(stdout);
+	PRINTF("Contiki waiting to proceed after writing a packet\n");
 	sem_wait(sem_traffic_go);
-	puts("Contiki proceeds after writing a packet");
-	fflush(stdout);
+	PRINTF("Contiki proceeds after writing a packet\n");
 }
 
 uint64_t ipc_time(void) {
@@ -216,8 +242,8 @@ void ipc_settimer(uint64_t interval, uint8_t type) {
 	if (sem_wait(sem_timer) == -1)
 		perror("contiki sem_wait() error");
 
-	memcpy(addr_timer, &type, sizeof(uint8_t));
-	memcpy(addr_timer + sizeof(uint8_t), &interval, 8);
+	memcpy(addr_timer, &type, 1);
+	memcpy(addr_timer + 1, &interval, 8);
 
 	if (sem_post(sem_timer) == -1)
 		perror("contiki sem_wait() error");
@@ -227,14 +253,11 @@ void ipc_settimer(uint64_t interval, uint8_t type) {
 	 * we are sure ns-3 handled this timer.
 	 */
 
-	puts("Contiki set a timer");
-	fflush(stdout);
+	PRINTF("Contiki set a timer\n");
 	sem_post(sem_timer_done);
-	puts("Contiki waiting to proceed after setting a timer");
-	fflush(stdout);
+	PRINTF("Contiki waiting to proceed after setting a timer\n");
 	sem_wait(sem_timer_go);
-	puts("Contiki proceeds after setting a timer");
-	fflush(stdout);
+	PRINTF("Contiki proceeds after setting a timer\n");
 
 }
 
