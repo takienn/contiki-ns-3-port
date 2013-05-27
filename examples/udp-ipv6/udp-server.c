@@ -41,7 +41,6 @@
 #define MAX_PAYLOAD_LEN 120
 
 static struct uip_udp_conn *server_conn;
-static struct etimer t;
 
 PROCESS(udp_server_process, "UDP server process");
 AUTOSTART_PROCESSES(&resolv_process,&udp_server_process);
@@ -96,7 +95,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
   PRINTF("UDP server started\n");
 
 #if RESOLV_CONF_SUPPORTS_MDNS
-  resolv_set_hostname("contiki-udp-server");
+  resolv_set_hostname("contiki-udp-server.local");
 #endif
 
 #if UIP_CONF_ROUTER
@@ -110,14 +109,11 @@ PROCESS_THREAD(udp_server_process, ev, data)
   server_conn = udp_new(NULL, UIP_HTONS(3001), NULL);
   udp_bind(server_conn, UIP_HTONS(3000));
 
-  etimer_set(&t, 1);
-
   while(1) {
     PROCESS_YIELD();
-    //if(ev == tcpip_event) {
+    if(ev == tcpip_event) {
       tcpip_handler();
-      etimer_reset(&t);
-    //}
+    }
   }
 
   PROCESS_END();

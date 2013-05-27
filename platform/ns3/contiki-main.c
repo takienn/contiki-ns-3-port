@@ -36,12 +36,17 @@
 #define UIP_IP_BUF                ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UIP_ICMP_BUF            ((struct uip_icmp_hdr *)&uip_buf[uip_l2_l3_hdr_len])
 
+#if UIP_CONF_IPV6
 PROCINIT(&etimer_process, &tcpip_process);
+#else
+PROCINIT(&etimer_process, &tcpip_process, &uip_fw_process);
+#endif
+
 SENSORS(&socket_sensor);
 
 int done_val = 0;
 
-u8_t convert(const char c, uint8_t lower) {
+u8_t convert(const unsigned char c, uint8_t lower) {
 	u8_t result;
 	if (c > 0x39) {
 		if (lower) {
@@ -60,7 +65,8 @@ u8_t convert(const char c, uint8_t lower) {
 }
 
 /*  Sets uip_lladdr value so that uip can derive a full address from the link layer address */
-void assign_rimeaddr(const char * addr) {
+#ifdef UIP_CONF_IPV6
+void assign_rimeaddr(const unsigned char * addr) {
 	uint8_t i, j = 0;
 	union {
 		u8_t u8[8];
@@ -76,29 +82,27 @@ void assign_rimeaddr(const char * addr) {
 	memcpy(&uip_lladdr.addr, &lladdr, sizeof(uip_lladdr.addr));
 	PRINTLLADDR(lladdr);
 }
+#else
+void assign_addr(char *ipaddr, char *netmask) {
+
+	uip_ipaddr_t addr;
+
+	uip_gethostaddr(&addr);
+	uiplib_ip6addrconv(ipaddr, &addr);
+	uip_sethostaddr(&addr);
+
+	uip_getnetmask(&addr);
+	uiplib_ip4addrconv(netmask, &addr);
+	uip_setnetmask(&addr);
+}
+#endif
 
 void log_message(char *m1, char *m2) {
 	printf("%s%s\n", m1, m2);
 }
 
-//void assign_addr(char *ipaddr, char *netmask) {
-//
-//	uip_ipaddr_t addr;
-//
-//	uip_gethostaddr(&addr);
-//	uiplib_ip6addrconv(ipaddr, &addr);
-//	uip_sethostaddr(&addr);
-//
-//	uip_getnetmask(&addr);
-//	uiplib_ip4addrconv(netmask, &addr);
-//	uip_setnetmask(&addr);
-//
-//
-//
-//}
-
 /*---------------------------------------------------------------------------*/
-int ContikiMain(char *node_id, int mode, char *addr, char *app) {
+int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 
 	static int counter = 0;
 	static sem_t *sem_go, *sem_done;
@@ -117,6 +121,9 @@ int ContikiMain(char *node_id, int mode, char *addr, char *app) {
 	PRINTF("Contiki %d is on\n", getpid());
 	ipc_init(node_id);
 	PRINTF("Contiki %d executed ipc_init\n", getpid());
+
+	/* Assign node llid */
+	assign_rimeaddr(addr);
 
 	/* Prepare process list */
 	process_init();

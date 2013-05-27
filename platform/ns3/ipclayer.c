@@ -6,7 +6,7 @@
 #include <ipclayer.h>
 #include <stdio.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG
 #include <stdio.h>
@@ -147,12 +147,12 @@ size_t ipc_read(void *buf) {
 
 	size_t input_size;
 
-	PRINTF("contiki %d trying to read using semaphore %s\n", getpid(), m_sem_in);
+	//PRINTF("contiki %d trying to read using semaphore %s\n", getpid(), m_sem_in);
 
 	if (sem_wait(sem_in) == -1)
 		perror("contiki sem_wait() error");
 
-	PRINTF("contiki %d got sem_in\n", getpid());
+	//PRINTF("contiki %d got sem_in\n", getpid());
 	// reading input size
 	memcpy(&input_size, addr_in, sizeof_size_t);
 
@@ -165,11 +165,11 @@ size_t ipc_read(void *buf) {
 	if (sem_post(sem_in) == -1)
 		perror("contiki sem_post() error");
 
-	PRINTF("contiki %d finished read using semaphore %s\n", getpid(), m_sem_in);
+	//PRINTF("contiki %d finished read using semaphore %s\n", getpid(), m_sem_in);
 
 	if(input_size>0)
 	{
-		PRINTF("ipc_read");
+		PRINTF("ipc_read\n");
 #if DEBUG
 		fwrite(buf,1,input_size,stdout);
 		puts("\n");
@@ -195,9 +195,9 @@ void ipc_write(uint8_t *buf, size_t len) {
 	// now writing data of that size
 	memcpy(addr_out + sizeof_size_t, buf, len);
 
-	PRINTF("Contiki wrote packet of size %d\n", len);
+	//PRINTF("Contiki wrote packet of size %d\n", len);
 #if DEBUG
-	puts("ipc_write");
+	puts("ipc_write\n");
 	fwrite(addr_out + sizeof_size_t, 1, len, stdout);
 	puts("\n");
 	fflush(stdout);
@@ -206,11 +206,11 @@ void ipc_write(uint8_t *buf, size_t len) {
 	if (sem_post(sem_out) == -1)
 		perror("contiki sem_wait() error");
 
-	PRINTF("Contiki wrote a packet\n");
+	//PRINTF("Contiki wrote a packet\n");
 	sem_post(sem_traffic_done);
-	PRINTF("Contiki waiting to proceed after writing a packet\n");
+	//PRINTF("Contiki waiting to proceed after writing a packet\n");
 	sem_wait(sem_traffic_go);
-	PRINTF("Contiki proceeds after writing a packet\n");
+	//PRINTF("Contiki proceeds after writing a packet\n");
 }
 
 uint64_t ipc_time(void) {
@@ -253,11 +253,11 @@ void ipc_settimer(uint64_t interval, uint8_t type) {
 	 * we are sure ns-3 handled this timer.
 	 */
 
-	PRINTF("Contiki set a timer\n");
+	//PRINTF("Contiki set a timer\n");
 	sem_post(sem_timer_done);
-	PRINTF("Contiki waiting to proceed after setting a timer\n");
+	//PRINTF("Contiki waiting to proceed after setting a timer\n");
 	sem_wait(sem_timer_go);
-	PRINTF("Contiki proceeds after setting a timer\n");
+	//PRINTF("Contiki proceeds after setting a timer\n");
 
 }
 

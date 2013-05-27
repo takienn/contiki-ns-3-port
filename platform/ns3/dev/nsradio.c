@@ -1,8 +1,14 @@
 #include "dev/nsradio.h"
+#include <stdio.h>
+
+#define DEBUG 1
 
 /* IPC Operations */
 size_t ipc_read(void *buf);
 void ipc_write(uint8_t *buf, size_t len);
+
+static FILE *file_send, *file_receive;
+static int counter_send, counter_receive;
 
 //#include <stdio.h>
 //#include <inttypes.h>
@@ -14,7 +20,11 @@ PROCESS(nsradio_process, "IPC Radio");
 
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(nsradio_process, ev, data)
-{ 
+{
+
+	counter_send = 0;
+	counter_receive = 0;
+
   PROCESS_POLLHANDLER(pollhandler());
   PROCESS_BEGIN();
 
@@ -95,6 +105,18 @@ radio_send(const void *payload, unsigned short payload_len)
   static uint8_t tmpbuf[65534];
   memcpy(tmpbuf,payload, payload_len);
   ipc_write(tmpbuf, (size_t)payload_len);
+
+  counter_send++;
+
+  file_send = fopen("radio_send.log", "a");
+  	if (file_send == NULL)
+  		perror("fopen error");
+
+  fprintf(file_send, "sent packet of size %d\n", payload_len);
+
+  fclose(file_send);
+
+
   return transmit(payload_len);
 }
 /*---------------------------------------------------------------------------*/
@@ -109,6 +131,19 @@ radio_read(void *buf, unsigned short buf_len)
 
   //if (ret > 0 && ret <= buf_len)
     //memcpy(buf, newbuf, buf_len);
+	counter_receive++;
+
+	if(buf_len > 0)
+	{
+  	file_receive = fopen("radio_receive.log", "a");
+  	if(file_receive == NULL)
+  		perror("fopen error");
+
+	fprintf(file_receive, "received packet of size\n", buf_len);
+
+	fclose(file_receive);
+	}
+
   return buf_len;
 }
 /*---------------------------------------------------------------------------*/

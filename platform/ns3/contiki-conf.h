@@ -80,27 +80,15 @@ typedef unsigned short uip_stats_t;
 
 #define RIMEADDR_CONF_SIZE              8
 
-#ifndef NETSTACK_CONF_MAC
-#define NETSTACK_CONF_MAC     nullmac_driver
-#endif /* NETSTACK_CONF_MAC */
-
-#ifndef NETSTACK_CONF_RDC
-#define NETSTACK_CONF_RDC     nullrdc_driver
-#endif /* NETSTACK_CONF_RDC */
-
-#ifndef NETSTACK_CONF_RADIO
-#define NETSTACK_CONF_RADIO   nsradio_driver
-#endif /* NETSTACK_CONF_RADIO */
-
-#ifndef NETSTACK_CONF_FRAMER
-#define NETSTACK_CONF_FRAMER   framer_802154
-#endif /* NETSTACK_CONF_FRAMER */
-
-#define NETSTACK_CONF_NETWORK sicslowpan_driver
+#define NETSTACK_CONF_NETWORK	uip_driver//sicslowpan_driver//
+#define NETSTACK_CONF_MAC    	nullmac_driver//csma_driver//
+#define NETSTACK_CONF_RDC     	nullrdc_noframer_driver//sicslowmac_driver//
+#define NETSTACK_CONF_FRAMER   	framer_802154//framer_nullmac//
+#define NETSTACK_CONF_RADIO   	nsradio_driver
 
 #define UIP_CONF_ROUTER                 1
 #ifndef UIP_CONF_IPV6_RPL
-#define UIP_CONF_IPV6_RPL               1
+#define UIP_CONF_IPV6_RPL               0
 #endif /* UIP_CONF_IPV6_RPL */
 
 #define SICSLOWPAN_CONF_COMPRESSION_IPV6        0
@@ -116,6 +104,18 @@ typedef unsigned short uip_stats_t;
 #ifndef SICSLOWPAN_CONF_MAX_MAC_TRANSMISSIONS
 #define SICSLOWPAN_CONF_MAX_MAC_TRANSMISSIONS   5
 #endif /* SICSLOWPAN_CONF_MAX_MAC_TRANSMISSIONS */
+
+#else
+//
+//#define NETSTACK_CONF_NETWORK rime_driver
+//#define NETSTACK_CONF_MAC     csma_driver
+//#define NETSTACK_CONF_RDC     cxmac_driver
+//#define NETSTACK_CONF_FRAMER  framer_802154
+//#define NETSTACK_CONF_RADIO   nsradio_driver
+
+#endif /* UIP_CONF_IPV6 */
+
+#if UIP_CONF_IPV6
 
 #define UIP_CONF_IPV6_CHECKS     1
 #define UIP_CONF_IPV6_QUEUE_PKT  1
@@ -161,7 +161,10 @@ typedef unsigned short uip_stats_t;
 #define UIP_CONF_PINGADDRCONF    0
 #define UIP_CONF_LOGGING         0
 
+#else
 
+#define UIP_CONF_IP_FORWARD      1
+#define UIP_CONF_BUFFER_SIZE     128
 
 #endif /* UIP_CONF_IPV6 */
 
@@ -173,6 +176,9 @@ typedef unsigned long clock_time_t;
 
 /* Not part of C99 but actually present */
 int strcasecmp(const char*, const char*);
+
+typedef unsigned short rtimer_clock_t;
+#define RTIMER_CLOCK_LT(a,b)     ((signed short)((a)-(b)) == 0)
 
 /* include the project config */
 /* PROJECT_CONF_H might be defined in the project Makefile */
