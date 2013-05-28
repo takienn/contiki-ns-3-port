@@ -22,8 +22,8 @@ PROCESS(nsradio_process, "IPC Radio");
 PROCESS_THREAD(nsradio_process, ev, data)
 {
 
-	counter_send = 0;
-	counter_receive = 0;
+//	counter_send = 0;
+//	counter_receive = 0;
 
   PROCESS_POLLHANDLER(pollhandler());
   PROCESS_BEGIN();
