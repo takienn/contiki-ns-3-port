@@ -70,7 +70,6 @@ static uint8_t
 ping6handler(process_event_t ev, process_data_t data)
 {
   if(count == 0){
-#if MACDEBUG
     // Setup destination address.
     addr[0] = 0xFE80;
     addr[4] = 0x6466;
@@ -82,31 +81,6 @@ ping6handler(process_event_t ev, process_data_t data)
 
     // Set the command to fool the 'if' below.
     memcpy(command, (void *)"ping6", 5);
-
-#else
-/* prompt */
-    printf("> ");
-    /** \note the scanf here is blocking (the all stack is blocked waiting
-     *  for user input). This is far from ideal and could be improved
-     */
-    scanf("%s", command);
-
-    if(strcmp(command,"ping6") != 0){
-      PRINTF("> invalid command\n");
-      return 0;
-    }
-
-    if(scanf(" %04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
-             &addr[0],&addr[1],&addr[2],&addr[3],
-             &addr[4],&addr[5],&addr[6],&addr[7]) == 8){
-
-      uip_ip6addr(&dest_addr, addr[0], addr[1],addr[2],
-                  addr[3],addr[4],addr[5],addr[6],addr[7]);
-    } else {
-      PRINTF("> invalid ipv6 address format\n");
-      return 0;
-    }
-#endif
 
   }
 

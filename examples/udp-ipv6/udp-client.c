@@ -38,7 +38,7 @@
 #define DEBUG DEBUG_PRINT
 #include "net/uip-debug.h"
 
-#define SEND_INTERVAL		15 * CLOCK_SECOND
+#define SEND_INTERVAL		5 * CLOCK_SECOND
 #define MAX_PAYLOAD_LEN		40
 
 static struct uip_udp_conn *client_conn;
@@ -54,7 +54,7 @@ tcpip_handler(void)
   if(uip_newdata()) {
     str = uip_appdata;
     str[uip_datalen()] = '\0';
-    printf("Response from the server: '%s'\n", str);
+    PRINTF("Response from the server: '%s'\n", str);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -64,10 +64,10 @@ timeout_handler(void)
 {
   static int seq_id;
 
-  printf("Client sending to: ");
+  PRINTF("Client sending to: ");
   PRINT6ADDR(&client_conn->ripaddr);
   sprintf(buf, "Hello %d from the client", ++seq_id);
-  printf(" (msg: %s)\n", buf);
+  PRINTF(" (msg: %s)\n", buf);
 #if SEND_TOO_LARGE_PACKET_TO_TEST_FRAGMENTATION
   uip_udp_packet_send(client_conn, buf, UIP_APPDATA_SIZE);
 #else /* SEND_TOO_LARGE_PACKET_TO_TEST_FRAGMENTATION */
@@ -124,7 +124,7 @@ void init_router() {
 
   uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
   uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
-  uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
+  //uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
   uip_ds6_prefix_add(&ipaddr, UIP_DEFAULT_PREFIX_LEN, 0);
 
   /*
