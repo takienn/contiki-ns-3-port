@@ -67,10 +67,10 @@ tcpip_handler(void)
     /* Creating nbr cache and routing entry for the sending node */
 
     uip_ds6_route_add(&UIP_IP_BUF->srcipaddr, 16, &UIP_IP_BUF->srcipaddr, 0xFF);
-    if(uip_ds6_defrt_add(&UIP_IP_BUF->srcipaddr, 0)== NULL){
-      puts("set default router success");
-    }
-    puts("init set static route end   ");
+//    if(uip_ds6_defrt_add(&UIP_IP_BUF->srcipaddr, 0)== NULL){
+//      puts("set default router success");
+//    }
+//    puts("init set static route end   ");
 
     uip_udp_packet_send(server_conn, buf, strlen(buf));
     /* Restore server connection to allow data from any node */
