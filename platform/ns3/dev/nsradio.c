@@ -1,7 +1,7 @@
 #include "dev/nsradio.h"
 #include <stdio.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 /* IPC Operations */
 size_t ipc_read(void *buf);
@@ -139,7 +139,7 @@ radio_read(void *buf, unsigned short buf_len)
   	if(file_receive == NULL)
   		perror("fopen error");
 
-	fprintf(file_receive, "received packet of size\n", buf_len);
+	fprintf(file_receive, "received packet of size %d\n", buf_len);
 
 	fclose(file_receive);
 	}

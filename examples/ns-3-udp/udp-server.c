@@ -30,6 +30,7 @@
  #include "contiki.h"
  #include "contiki-lib.h"
  #include "contiki-net.h"
+#include "net/uip-over-mesh.h"
 
  #include <string.h>
 
@@ -63,7 +64,7 @@
    if(uip_newdata()) {
      ((char *)uip_appdata)[uip_datalen()] = 0;
      PRINTF("Server received: '%s' from ", (char *)uip_appdata);
-     PRINT6ADDR(&UDP_IP_BUF->srcipaddr);
+     //PRINTADDR(&UDP_IP_BUF->srcipaddr);
      PRINTF("\n");
 
      uip_ipaddr_copy(&server_conn->ripaddr, &UDP_IP_BUF->srcipaddr);
@@ -78,27 +79,37 @@
      server_conn->rport = 0;
    }
  }
- /*---------------------------------------------------------------------------*/
- static void
- print_local_addresses(void)
- {
-   int i;
-   uint8_t state;
 
-   puts("Router's IPv6 addresses:\n");
-   for(i = 0; i < UIP_DS6_ADDR_NB; i++) {
-     state = uip_ds6_if.addr_list[i].state;
-     if(uip_ds6_if.addr_list[i].isused && (state == ADDR_TENTATIVE || state
-         == ADDR_PREFERRED)) {
-       puts("  ");
-       PRINT6ADDR(&uip_ds6_if.addr_list[i].ipaddr);
-       putchar('\n');
-       if(state == ADDR_TENTATIVE) {
-         uip_ds6_if.addr_list[i].state = ADDR_PREFERRED;
-       }
-     }
-   }
+ static void
+ set_node_address(void)
+ {
+
+		uip_ipaddr_t hostaddr, netmask;
+
+		static struct uip_fw_netif meshif =
+			        {UIP_FW_NETIF(172,18,0,0, 255,255,0,0, uip_over_mesh_send)};
+
+		uip_gethostaddr(&hostaddr);
+		if(hostaddr.u8[0] == 0) {
+			uip_ipaddr(&hostaddr, 172,18,0,1);
+		}
+		printf("IP Address:  %d.%d.%d.%d\n", uip_ipaddr_to_quad(&hostaddr));
+		uip_sethostaddr(&hostaddr);
+
+		uip_ipaddr_copy(&meshif.ipaddr, &hostaddr);
+
+		uip_getnetmask(&netmask);
+		if(netmask.u8[0] == 0) {
+		uip_ipaddr(&netmask, 255,255,0,0);
+		uip_setnetmask(&netmask);
+		}
+		printf("Subnet Mask: %d.%d.%d.%d\n", uip_ipaddr_to_quad(&netmask));
+		uip_over_mesh_set_net(&hostaddr, &netmask);
+
+		uip_fw_default(&meshif);
+
  }
+
  /*---------------------------------------------------------------------------*/
  PROCESS_THREAD(udp_server_process, ev, data)
  {
@@ -107,13 +118,7 @@
    PROCESS_BEGIN();
    PRINTF("UDP server started\n");
 
-   // wait 3 second, in order to have the IP addresses well configured
-   //etimer_set(&timer, CLOCK_CONF_SECOND*3);
-
-   // wait until the timer has expired
-   //PROCESS_WAIT_EVENT_UNTIL(ev == PROCESS_EVENT_TIMER);
-
-   print_local_addresses();
+   set_node_address();
 
    // set NULL and 0 as IP address and port to accept packet from any node and any srcport.
    server_conn = udp_new(NULL, htons(0), NULL);
@@ -125,10 +130,10 @@
 
    while(1) {
      PROCESS_YIELD();
-     //if(ev == tcpip_event) {
+     if(ev == tcpip_event) {
        tcpip_handler();
        etimer_set(&timer, CLOCK_CONF_SECOND*3);
-     //}
+     }
    }
 
    PROCESS_END();

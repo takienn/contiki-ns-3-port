@@ -86,10 +86,10 @@ typedef unsigned short uip_stats_t;
 #define NETSTACK_CONF_FRAMER   	framer_802154//framer_nullmac//
 #define NETSTACK_CONF_RADIO   	nsradio_driver
 
-#define UIP_CONF_ROUTER                 1
-#ifndef UIP_CONF_IPV6_RPL
+#define UIP_CONF_ROUTER                 0
+//#ifndef UIP_CONF_IPV6_RPL
 #define UIP_CONF_IPV6_RPL               0
-#endif /* UIP_CONF_IPV6_RPL */
+//#endif /* UIP_CONF_IPV6_RPL */
 
 #define SICSLOWPAN_CONF_COMPRESSION_IPV6        0
 #define SICSLOWPAN_CONF_COMPRESSION_HC1         1
@@ -106,12 +106,12 @@ typedef unsigned short uip_stats_t;
 #endif /* SICSLOWPAN_CONF_MAX_MAC_TRANSMISSIONS */
 
 #else
-//
-//#define NETSTACK_CONF_NETWORK rime_driver
-//#define NETSTACK_CONF_MAC     csma_driver
-//#define NETSTACK_CONF_RDC     cxmac_driver
-//#define NETSTACK_CONF_FRAMER  framer_802154
-//#define NETSTACK_CONF_RADIO   nsradio_driver
+
+#define NETSTACK_CONF_NETWORK rime_driver
+#define NETSTACK_CONF_MAC     csma_driver
+#define NETSTACK_CONF_RDC     cxmac_driver
+#define NETSTACK_CONF_FRAMER  framer_802154
+#define NETSTACK_CONF_RADIO   nsradio_driver
 
 #endif /* UIP_CONF_IPV6 */
 

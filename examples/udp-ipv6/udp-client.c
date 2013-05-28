@@ -44,7 +44,7 @@
 static struct uip_udp_conn *client_conn;
 /*---------------------------------------------------------------------------*/
 PROCESS(udp_client_process, "UDP client process");
-AUTOSTART_PROCESSES(&resolv_process,&udp_client_process);
+AUTOSTART_PROCESSES(&udp_client_process);
 /*---------------------------------------------------------------------------*/
 static void
 tcpip_handler(void)
@@ -104,46 +104,46 @@ set_global_address(void)
 }
 #endif /* UIP_CONF_ROUTER */
 /*---------------------------------------------------------------------------*/
-static resolv_status_t
+static void
 set_connection_address(uip_ipaddr_t *ipaddr)
 {
-//#ifndef UDP_CONNECTION_ADDR
-//#if RESOLV_CONF_SUPPORTS_MDNS
-#define UDP_CONNECTION_ADDR       contiki-udp-server.local
-//#elif UIP_CONF_ROUTER
-//#define UDP_CONNECTION_ADDR       aaaa:0:0:0:0212:7404:0004:0404
-//#else
-//#define UDP_CONNECTION_ADDR       fe80:0:0:0:6466:6666:6666:6666
-//#endif
-//#endif /* !UDP_CONNECTION_ADDR */
 
-#define _QUOTEME(x) #x
-#define QUOTEME(x) _QUOTEME(x)
+#define UDP_CONNECTION_ADDR       fe80:0:0:0:6466:6666:6666:6666
 
-  resolv_status_t status = RESOLV_STATUS_ERROR;
+	uiplib_ip6addrconv("fe80::200:0:0:1", ipaddr);
 
-  if(uiplib_ipaddrconv(QUOTEME(UDP_CONNECTION_ADDR), ipaddr) == 0) {
-    uip_ipaddr_t *resolved_addr = NULL;
-    status = resolv_lookup(QUOTEME(UDP_CONNECTION_ADDR),&resolved_addr);
-    if(status == RESOLV_STATUS_UNCACHED || status == RESOLV_STATUS_EXPIRED) {
-      PRINTF("Attempting to look up %s\n",QUOTEME(UDP_CONNECTION_ADDR));
-      resolv_query(QUOTEME(UDP_CONNECTION_ADDR));
-      status = RESOLV_STATUS_RESOLVING;
-    } else if(status == RESOLV_STATUS_CACHED && resolved_addr != NULL) {
-      PRINTF("Lookup of \"%s\" succeded!\n",QUOTEME(UDP_CONNECTION_ADDR));
-    } else if(status == RESOLV_STATUS_RESOLVING) {
-      PRINTF("Still looking up \"%s\"...\n",QUOTEME(UDP_CONNECTION_ADDR));
-    } else {
-      PRINTF("Lookup of \"%s\" failed. status = %d\n",QUOTEME(UDP_CONNECTION_ADDR),status);
-    }
-    if(resolved_addr)
-      uip_ipaddr_copy(ipaddr, resolved_addr);
-  } else {
-    status = RESOLV_STATUS_CACHED;
-  }
-
-  return status;
 }
+
+void init_router() {
+
+  static uip_lladdr_t lladdr;
+  static uip_ipaddr_t ipaddr;
+  static uip_ipaddr_t nexthop;
+
+  memcpy(&lladdr, &uip_lladdr, sizeof(uip_lladdr_t));
+
+  uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
+  uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
+  uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
+  uip_ds6_prefix_add(&ipaddr, UIP_DEFAULT_PREFIX_LEN, 0);
+
+  /*
+    * add data node for A branch
+    *
+    * */
+   //lladdr.addr[6] = 0xFF;
+   lladdr.addr[15] = 0x01;
+  uip_ds6_set_addr_iid(&ipaddr, &lladdr);
+  if(uip_ds6_nbr_add(&ipaddr, &lladdr, 1, NBR_REACHABLE) == NULL){
+    puts("add nbr fail");
+  }
+  uip_ds6_route_add(&ipaddr, 16, &ipaddr, 0xFF);
+  if(uip_ds6_defrt_add(&ipaddr, 0)== NULL){
+    puts("set default router success");
+  }
+  puts("init set static route end   ");
+}
+
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_client_process, ev, data)
 {
@@ -154,22 +154,14 @@ PROCESS_THREAD(udp_client_process, ev, data)
   PRINTF("UDP client process started\n");
 
 #if UIP_CONF_ROUTER
-  set_global_address();
+  init_router();
 #endif
 
   print_local_addresses();
 
-  static resolv_status_t status = RESOLV_STATUS_UNCACHED;
-  while(status != RESOLV_STATUS_CACHED) {
-    status = set_connection_address(&ipaddr);
 
-    if(status == RESOLV_STATUS_RESOLVING) {
-      PROCESS_WAIT_EVENT_UNTIL(ev == resolv_event_found);
-    } else if(status != RESOLV_STATUS_CACHED) {
-      PRINTF("Can't get connection address.\n");
-      PROCESS_YIELD();
-    }
-  }
+  set_connection_address(&ipaddr);
+
 
   /* new connection with remote host */
   client_conn = udp_new(&ipaddr, UIP_HTONS(3000), NULL);
@@ -185,7 +177,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
     PROCESS_YIELD();
     if(etimer_expired(&et)) {
       timeout_handler();
-      etimer_restart(&et);
+      etimer_set(&et, SEND_INTERVAL);
     } else if(ev == tcpip_event) {
       tcpip_handler();
     }

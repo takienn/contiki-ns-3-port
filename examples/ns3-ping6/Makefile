@@ -1,6 +1,6 @@
-all: udp-server udp-client
+all: example-ping6
 
-#UIP_CONF_IPV6=1
+UIP_CONF_IPV6=1
 
 CONTIKI = ../..
 include $(CONTIKI)/Makefile.include

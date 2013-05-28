@@ -82,19 +82,19 @@ void assign_rimeaddr(const unsigned char * addr) {
 	memcpy(&uip_lladdr.addr, &lladdr, sizeof(uip_lladdr.addr));
 	PRINTLLADDR(lladdr);
 }
-#else
-void assign_addr(char *ipaddr, char *netmask) {
-
-	uip_ipaddr_t addr;
-
-	uip_gethostaddr(&addr);
-	uiplib_ip6addrconv(ipaddr, &addr);
-	uip_sethostaddr(&addr);
-
-	uip_getnetmask(&addr);
-	uiplib_ip4addrconv(netmask, &addr);
-	uip_setnetmask(&addr);
-}
+//#else
+//void assign_addr(char *ipaddr, char *netmask) {
+//
+//	uip_ipaddr_t addr;
+//
+//	uip_gethostaddr(&addr);
+//	uiplib_ip6addrconv(ipaddr, &addr);
+//	uip_sethostaddr(&addr);
+//
+//	uip_getnetmask(&addr);
+//	uiplib_ip4addrconv(netmask, &addr);
+//	uip_setnetmask(&addr);
+//}
 #endif
 
 void log_message(char *m1, char *m2) {
@@ -122,7 +122,10 @@ int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 	ipc_init(node_id);
 	PRINTF("Contiki %d executed ipc_init\n", getpid());
 
+	random_init(atoi(node_id));
+
 	/* Assign node llid */
+	printf("Assigning lladdr %s\n", addr);
 	assign_rimeaddr(addr);
 
 	/* Prepare process list */
@@ -138,11 +141,11 @@ int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 	/* Start all processes listed in PROCINIT macro */
 	procinit_init();
 	PRINTF("Contiki %d executed procinit\n", getpid());
+	PRINTF("Contiki %d executed dlloader_load\n", getpid());
 	/* Run Autostart processes (Application Layer) */
 	autostart_start(autostart_processes);
 	PRINTF("Contiki %d executed autostart_start\n", getpid());
 	dlloader_load(app, NULL);
-	PRINTF("Contiki %d executed dlloader_load\n", getpid());
 	while (1) {
 
 		PRINTF("contiki %d before new cycle %d\n",getpid(), counter);

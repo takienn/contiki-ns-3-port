@@ -43,13 +43,15 @@
 static struct uip_udp_conn *server_conn;
 
 PROCESS(udp_server_process, "UDP server process");
-AUTOSTART_PROCESSES(&resolv_process,&udp_server_process);
+AUTOSTART_PROCESSES(&udp_server_process);
 /*---------------------------------------------------------------------------*/
 static void
 tcpip_handler(void)
 {
   static int seq_id;
   char buf[MAX_PAYLOAD_LEN];
+
+  static uip_lladdr_t lladdr, ipaddr;
 
   if(uip_newdata()) {
     ((char *)uip_appdata)[uip_datalen()] = 0;
@@ -61,6 +63,14 @@ tcpip_handler(void)
     PRINTF("Responding with message: ");
     sprintf(buf, "Hello from the server! (%d)", ++seq_id);
     PRINTF("%s\n", buf);
+
+    /* Creating nbr cache and routing entry for the sending node */
+
+    uip_ds6_route_add(&UIP_IP_BUF->srcipaddr, 16, &UIP_IP_BUF->srcipaddr, 0xFF);
+    if(uip_ds6_defrt_add(&UIP_IP_BUF->srcipaddr, 0)== NULL){
+      puts("set default router success");
+    }
+    puts("init set static route end   ");
 
     uip_udp_packet_send(server_conn, buf, strlen(buf));
     /* Restore server connection to allow data from any node */
@@ -84,25 +94,44 @@ print_local_addresses(void)
     }
   }
 }
+
+void init_router() {
+
+  static uip_lladdr_t lladdr;
+  static uip_ipaddr_t ipaddr;
+  static uip_ipaddr_t nexthop;
+
+  memcpy(&lladdr, &uip_lladdr, sizeof(uip_lladdr_t));
+
+  uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
+  uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
+  uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
+  uip_ds6_prefix_add(&ipaddr, UIP_DEFAULT_PREFIX_LEN, 0);
+
+  /*
+    * add data node for A branch
+    *
+    * */
+//   lladdr.addr[6] = 0x00;
+//   lladdr.addr[7] = 0x00;
+  if(uip_ds6_nbr_add(&ipaddr, &lladdr, 1, NBR_REACHABLE) == NULL){
+    puts("add nbr fail");
+  }
+  uip_ds6_route_add(&ipaddr, 16, &ipaddr, 0xFF);
+//  if(uip_ds6_defrt_add(&ipaddr, 0)== NULL){
+//    puts("set default router success");
+//  }
+  puts("init set static route end   ");
+}
+
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_server_process, ev, data)
 {
-#if UIP_CONF_ROUTER
-  uip_ipaddr_t ipaddr;
-#endif /* UIP_CONF_ROUTER */
 
   PROCESS_BEGIN();
   PRINTF("UDP server started\n");
 
-#if RESOLV_CONF_SUPPORTS_MDNS
-  resolv_set_hostname("contiki-udp-server.local");
-#endif
-
-#if UIP_CONF_ROUTER
-  uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
-  uip_ds6_set_addr_iid(&ipaddr, &uip_lladdr);
-  uip_ds6_addr_add(&ipaddr, 0, ADDR_AUTOCONF);
-#endif /* UIP_CONF_ROUTER */
+  init_router();
 
   print_local_addresses();
 
