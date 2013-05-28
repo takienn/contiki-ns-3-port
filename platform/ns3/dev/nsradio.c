@@ -112,7 +112,7 @@ radio_send(const void *payload, unsigned short payload_len)
   	if (file_send == NULL)
   		perror("fopen error");
 
-  fprintf(file_send, "contiki %d sent packet of size %d\n", getpid(), payload_len);
+  fprintf(file_send, "sent packet of size %d\n", payload_len);
 
   fclose(file_send);
 
@@ -139,7 +139,7 @@ radio_read(void *buf, unsigned short buf_len)
   	if(file_receive == NULL)
   		perror("fopen error");
 
-	fprintf(file_receive, "node %d received packet of size %d\n", getpid(),  buf_len);
+	fprintf(file_receive, "received packet of size %d\n", buf_len);
 
 	fclose(file_receive);
 	}

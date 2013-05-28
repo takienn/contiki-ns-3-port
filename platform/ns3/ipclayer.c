@@ -167,15 +167,15 @@ size_t ipc_read(void *buf) {
 
 	//PRINTF("contiki %d finished read using semaphore %s\n", getpid(), m_sem_in);
 
-//	if(input_size>0)
-//	{
-//		PRINTF("ipc_read\n");
-//#if DEBUG
-//		fwrite(buf,1,input_size,stdout);
-//		puts("\n");
-//#endif
-//		fflush(stdout);
-//	}
+	if(input_size>0)
+	{
+		PRINTF("ipc_read\n");
+#if DEBUG
+		fwrite(buf,1,input_size,stdout);
+		puts("\n");
+#endif
+		fflush(stdout);
+	}
 
 	return input_size;
 
@@ -196,12 +196,12 @@ void ipc_write(uint8_t *buf, size_t len) {
 	memcpy(addr_out + sizeof_size_t, buf, len);
 
 	//PRINTF("Contiki wrote packet of size %d\n", len);
-//#if DEBUG
-//	puts("ipc_write\n");
-//	fwrite(addr_out + sizeof_size_t, 1, len, stdout);
-//	puts("\n");
-//	fflush(stdout);
-//#endif
+#if DEBUG
+	puts("ipc_write\n");
+	fwrite(addr_out + sizeof_size_t, 1, len, stdout);
+	puts("\n");
+	fflush(stdout);
+#endif
 
 	if (sem_post(sem_out) == -1)
 		perror("contiki sem_wait() error");
@@ -225,7 +225,7 @@ uint64_t ipc_time(void) {
 
 	if (now > old) {
 		old = now;
-		PRINTF("contiki %d got time %llu\n", getpid(), now);
+		//printf("contiki %d got time %llu\n", getpid(), now);
 	}
 
 	return now;
@@ -253,7 +253,7 @@ void ipc_settimer(uint64_t interval, uint8_t type) {
 	 * we are sure ns-3 handled this timer.
 	 */
 
-	PRINTF("Contiki set a timer %d milliseconds\n", interval);
+	//PRINTF("Contiki set a timer\n");
 	sem_post(sem_timer_done);
 	//PRINTF("Contiki waiting to proceed after setting a timer\n");
 	sem_wait(sem_timer_go);
