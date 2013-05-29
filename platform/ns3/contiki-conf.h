@@ -81,8 +81,8 @@ typedef unsigned short uip_stats_t;
 #define RIMEADDR_CONF_SIZE              8
 
 #define NETSTACK_CONF_NETWORK	uip_driver//sicslowpan_driver//
-#define NETSTACK_CONF_MAC    	nullmac_driver//csma_driver//
-#define NETSTACK_CONF_RDC     	nullrdc_noframer_driver//sicslowmac_driver//
+#define NETSTACK_CONF_MAC    	csma_driver//
+#define NETSTACK_CONF_RDC     	nullrdc_driver//sicslowmac_driver//
 #define NETSTACK_CONF_FRAMER   	framer_802154//framer_nullmac//
 #define NETSTACK_CONF_RADIO   	nsradio_driver
 
@@ -140,7 +140,7 @@ typedef unsigned short uip_stats_t;
 
 #define UIP_CONF_IP_FORWARD             0
 #ifndef UIP_CONF_BUFFER_SIZE
-#define UIP_CONF_BUFFER_SIZE		240
+#define UIP_CONF_BUFFER_SIZE		1300 //240
 #endif
 
 
@@ -164,7 +164,6 @@ typedef unsigned short uip_stats_t;
 #else
 
 #define UIP_CONF_IP_FORWARD      1
-#define UIP_CONF_BUFFER_SIZE     128
 
 #endif /* UIP_CONF_IPV6 */
 
@@ -177,6 +176,8 @@ typedef unsigned long clock_time_t;
 /* Not part of C99 but actually present */
 int strcasecmp(const char*, const char*);
 
+
+/* Worst possible way, but those RDC loops are deadly */
 typedef unsigned short rtimer_clock_t;
 #define RTIMER_CLOCK_LT(a,b)     ((signed short)((a)-(b)) == 0)
 

@@ -15,10 +15,14 @@
 #define PRINTF(...)
 #endif
 
+#ifndef UIP_BUFSIZE
+#define UIP_BUFSIZE 1300
+#endif
+
 uint64_t now;
 uint64_t old = 0;
 
-size_t traffic_size = 65536, size_time = 8;
+size_t traffic_size = UIP_BUFSIZE, size_time = 8;
 size_t sizeof_size_t = sizeof(size_t); // size of size_t
 
 // Shared memory fds

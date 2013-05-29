@@ -10,7 +10,7 @@
 
 /* For shared memory IPC */
 #include <sys/types.h>
-#include "../ipclayer.h"
+#include "ipclayer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

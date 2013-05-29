@@ -1,17 +1,18 @@
 #include "dev/nsradio.h"
 #include <stdio.h>
+#include <inttypes.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define DEBUG 0
 
-/* IPC Operations */
-size_t ipc_read(void *buf);
-void ipc_write(uint8_t *buf, size_t len);
+#ifdef LOG
 
-//static FILE *file_send, *file_receive;
-//static int counter_send, counter_receive;
+static FILE *file_send, *file_receive;
+static int counter_send, counter_receive;
+static pid_t pid = getpid();
 
-//#include <stdio.h>
-//#include <inttypes.h>
+#endif /* LOG */
 
 
 /* Contiki Process functions */
@@ -103,20 +104,23 @@ radio_send(const void *payload, unsigned short payload_len)
 //  puts("\n");
 //  fflush (stdout);
 
-  static uint8_t tmpbuf[65534];
+  static uint8_t tmpbuf[UIP_BUFSIZE];
   memcpy(tmpbuf,payload, payload_len);
   ipc_write(tmpbuf, (size_t)payload_len);
 
-//  counter_send++;
-//
-//  file_send = fopen("radio_send.log", "a");
-//  	if (file_send == NULL)
-//  		perror("fopen error");
-//
-//  fprintf(file_send, "sent packet of size %d\n", payload_len);
-//
-//  fclose(file_send);
-//
+#if LOG
+  counter_send++;
+
+  file_send = fopen("radio_send.log", "a");
+  	if (file_send == NULL)
+  		perror("fopen error");
+
+  fprintf(file_send, "contiki %d sent packet of size %d\n", pid, payload_len);
+
+  fclose(file_send);
+
+#endif LOG
+
 
   return transmit(payload_len);
 }
@@ -124,7 +128,7 @@ radio_send(const void *payload, unsigned short payload_len)
 static int
 radio_read(void *buf, unsigned short buf_len)
 {
-  static char newbuf[65535];
+  static char newbuf[UIP_BUFSIZE];
    /*  Read from IPC  */
 //TODO: error handling and size checks.
 	buf_len = (unsigned short)ipc_read(newbuf);
@@ -132,18 +136,21 @@ radio_read(void *buf, unsigned short buf_len)
 
   //if (ret > 0 && ret <= buf_len)
     //memcpy(buf, newbuf, buf_len);
-//	counter_receive++;
-//
-//	if(buf_len > 0)
-//	{
-//  	file_receive = fopen("radio_receive.log", "a");
-//  	if(file_receive == NULL)
-//  		perror("fopen error");
-//
-//	fprintf(file_receive, "received packet of size %d\n", buf_len);
-//
-//	fclose(file_receive);
-//	}
+
+#if LOG
+	counter_receive++;
+
+	if(buf_len > 0)
+	{
+  	file_receive = fopen("radio_receive.log", "a");
+  	if(file_receive == NULL)
+  		perror("fopen error");
+
+	fprintf(file_receive, "contiki %d received packet of size %d\n", pid, buf_len);
+
+	fclose(file_receive);
+	}
+#endif /* LOG */
 
   return buf_len;
 }

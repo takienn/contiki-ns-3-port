@@ -124,9 +124,11 @@ int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 
 	random_init(atoi(node_id));
 
+#ifdef UIP_CONF_IPV6
 	/* Assign node llid */
 	printf("Assigning lladdr %s\n", addr);
 	assign_rimeaddr(addr);
+#endif
 
 	/* Prepare process list */
 	process_init();

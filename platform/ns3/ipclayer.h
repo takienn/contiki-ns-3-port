@@ -13,6 +13,8 @@
 #include <sys/mman.h>
 #include <semaphore.h>
 
+#include "contiki.h"
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
