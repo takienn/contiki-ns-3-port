@@ -103,14 +103,25 @@ set_node_address(void)
 	uip_over_mesh_set_net(&hostaddr, &netmask);
 
 	uip_fw_default(&meshif);
+	uip_over_mesh_set_gateway_netif(&meshif);
 }
 
 static void
 set_connection_address(uip_ipaddr_t *addr)
 {
+	rimeaddr_t route_addr;
+	route_addr.u8[0] = 0;
+	route_addr.u8[1] = 1;
 
-	uiplib_ip4addrconv("172.18.0.1", addr);
-	route_add(rimeaddr_node_addr.u8, addr, 0, 0);
+	route_add(&route_addr,&route_addr,0,0);
+
+    uip_getdraddr(addr);
+    if(addr->u8[0] == 0) {
+      uip_ipaddr(addr, 172,18,0,1);
+      uip_setdraddr(addr);
+    }
+    printf("Def. Router: %d.%d.%d.%d\n", uip_ipaddr_to_quad(addr));
+
 }
 
 
