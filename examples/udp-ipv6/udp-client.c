@@ -32,9 +32,6 @@
 #include "contiki-net.h"
 #include "net/resolv.h"
 
-#include <string.h>
-#include <stdbool.h>
-
 #define DEBUG 0
 #include "net/uip-debug.h"
 
@@ -66,7 +63,7 @@ timeout_handler(void)
 
   PRINTF("Client sending to: ");
   PRINT6ADDR(&client_conn->ripaddr);
-  sPRINTF(buf, "Hello %d from the client", ++seq_id);
+  sprintf(buf, "Hello %d from the client", ++seq_id);
   PRINTF(" (msg: %s)\n", buf);
 #if SEND_TOO_LARGE_PACKET_TO_TEST_FRAGMENTATION
   uip_udp_packet_send(client_conn, buf, UIP_APPDATA_SIZE);
