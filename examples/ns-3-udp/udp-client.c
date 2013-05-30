@@ -113,7 +113,7 @@ set_connection_address(uip_ipaddr_t *addr)
 	route_addr.u8[0] = 0;
 	route_addr.u8[1] = 1;
 
-	route_add(&route_addr,&route_addr,0,0);
+	route_add(&route_addr,&route_addr,1,0);
 
     uip_getdraddr(addr);
     if(addr->u8[0] == 0) {
