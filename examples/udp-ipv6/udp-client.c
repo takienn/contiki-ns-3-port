@@ -35,7 +35,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#define DEBUG DEBUG_PRINT
+#define DEBUG 0
 #include "net/uip-debug.h"
 
 #define SEND_INTERVAL		1 * CLOCK_SECOND
@@ -54,7 +54,7 @@ tcpip_handler(void)
   if(uip_newdata()) {
     str = uip_appdata;
     str[uip_datalen()] = '\0';
-    printf("Response from the server: '%s'\n", str);
+    PRINTF("Response from the server: '%s'\n", str);
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -64,10 +64,10 @@ timeout_handler(void)
 {
   static int seq_id;
 
-  printf("Client sending to: ");
+  PRINTF("Client sending to: ");
   PRINT6ADDR(&client_conn->ripaddr);
-  sprintf(buf, "Hello %d from the client", ++seq_id);
-  printf(" (msg: %s)\n", buf);
+  sPRINTF(buf, "Hello %d from the client", ++seq_id);
+  PRINTF(" (msg: %s)\n", buf);
 #if SEND_TOO_LARGE_PACKET_TO_TEST_FRAGMENTATION
   uip_udp_packet_send(client_conn, buf, UIP_APPDATA_SIZE);
 #else /* SEND_TOO_LARGE_PACKET_TO_TEST_FRAGMENTATION */
@@ -135,13 +135,13 @@ void init_router() {
    lladdr.addr[15] = 0x01;
   uip_ds6_set_addr_iid(&ipaddr, &lladdr);
   if(uip_ds6_nbr_add(&ipaddr, &lladdr, 1, NBR_REACHABLE) == NULL){
-    puts("add nbr fail");
+    PRINTF("add nbr fail");
   }
   uip_ds6_route_add(&ipaddr, 16, &ipaddr, 0xFF);
   if(uip_ds6_defrt_add(&ipaddr, 0)== NULL){
-    puts("set default router success");
+    PRINTF("set default router success");
   }
-  puts("init set static route end   ");
+  PRINTF("init set static route end   ");
 }
 
 /*---------------------------------------------------------------------------*/

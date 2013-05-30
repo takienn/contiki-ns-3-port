@@ -65,7 +65,7 @@ typedef unsigned short uip_stats_t;
 #define UIP_CONF_UDP             1
 #define UIP_CONF_MAX_CONNECTIONS 40
 #define UIP_CONF_MAX_LISTENPORTS 40
-#define UIP_CONF_BUFFER_SIZE     420
+//#define UIP_CONF_BUFFER_SIZE     420
 #define UIP_CONF_BYTE_ORDER      UIP_LITTLE_ENDIAN
 #define UIP_CONF_TCP       1
 #define UIP_CONF_TCP_SPLIT       0
@@ -164,6 +164,7 @@ typedef unsigned short uip_stats_t;
 #else
 
 #define UIP_CONF_IP_FORWARD      1
+#define	UIP_CONF_BUFFER_SIZE	420
 
 #endif /* UIP_CONF_IPV6 */
 

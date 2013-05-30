@@ -10,7 +10,7 @@
 
 static FILE *file_send, *file_receive;
 static int counter_send, counter_receive;
-static pid_t pid = getpid();
+static pid_t pid;
 
 #endif /* LOG */
 

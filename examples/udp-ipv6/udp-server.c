@@ -68,9 +68,9 @@ tcpip_handler(void)
 
     uip_ds6_route_add(&UIP_IP_BUF->srcipaddr, 16, &UIP_IP_BUF->srcipaddr, 0xFF);
     if(uip_ds6_defrt_add(&UIP_IP_BUF->srcipaddr, 0)== NULL){
-      puts("set default router success");
+      PRINTF("set default router success");
     }
-//    puts("init set static route end   ");
+//    PRINTF("init set static route end   ");
 
     uip_udp_packet_send(server_conn, buf, strlen(buf));
     /* Restore server connection to allow data from any node */
@@ -115,13 +115,13 @@ void init_router() {
 //   lladdr.addr[6] = 0x00;
 //   lladdr.addr[7] = 0x00;
 //  if(uip_ds6_nbr_add(&ipaddr, &lladdr, 1, NBR_REACHABLE) == NULL){
-//    puts("add nbr fail");
+//    PRINTF("add nbr fail");
 //  }
 //  uip_ds6_route_add(&ipaddr, 16, &ipaddr, 0xFF);
 //  if(uip_ds6_defrt_add(&ipaddr, 0)== NULL){
-//    puts("set default router success");
+//    PRINTF("set default router success");
 //  }
-  puts("init set static route end   ");
+  PRINTF("init set static route end   ");
 }
 
 /*---------------------------------------------------------------------------*/
