@@ -67,7 +67,7 @@ u8_t convert(const unsigned char c, uint8_t lower) {
 /*  Sets uip_lladdr value so that uip can derive a full address from the link layer address */
 #ifdef UIP_CONF_IPV6
 void assign_rimeaddr(const unsigned char * addr) {
-	uint8_t i, j = 0;
+	uint8_t i=0, j = 0;
 	union {
 		u8_t u8[8];
 	} lladdr;
@@ -129,6 +129,8 @@ int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 	printf("Assigning lladdr %s\n", addr);
 	assign_rimeaddr(addr);
 #endif
+	printf("test\n");
+	fflush(stdout);
 
 	/* Prepare process list */
 	process_init();
