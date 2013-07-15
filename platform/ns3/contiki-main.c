@@ -153,8 +153,8 @@ int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 	while (1) {
 
 		PRINTF("contiki %d before new cycle %d\n",getpid(), counter);
-		sem_post(sem_done);
-		sem_wait(sem_go);
+//		sem_post(sem_done);
+//		sem_wait(sem_go);
 		PRINTF("contiki %d new cycle %d\n", getpid(), counter);
 
 		/* Run a single cycle of the scheduler (event and poll processing) */
@@ -168,6 +168,8 @@ int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 /*---------------------------------------------------------------------------*/
 
 int main(int argc, char *argv[]) {
+	printf("MMMMMMMMMMMMMMMMM!\n");
+
 	if (argc < 4) {
 		PRINTF("missing arguments!\n");
 		exit(0);
