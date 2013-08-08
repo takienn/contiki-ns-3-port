@@ -1,6 +1,6 @@
 all: 
 	make -f Makefile.ipso TARGET=avr-raven ipso.elf
-	avr-objcopy -O ihex -R .eeprom ipso.elf ipso.hex
+	avr-objcopy  ihex -R .eeprom ipso.elf ipso.hex
 	avr-size -C ipso.elf
 
 clean:

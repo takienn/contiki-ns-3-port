@@ -105,10 +105,10 @@ CUSTOM_RULE_C_TO_CO=yes
 .PRECIOUS: %.bin %_$(TARGET).bin
 
 %.ihex: %.$(TARGET)
-	$(OBJCOPY) $^ -O ihex $@
+	$(OBJCOPY) $^  ihex $@
 
 %_$(TARGET).bin: %.elf
-	$(OBJCOPY) -O binary $< $@
+	$(OBJCOPY)  binary $< $@
 
 %.$(TARGET): %_$(TARGET).bin
 	@

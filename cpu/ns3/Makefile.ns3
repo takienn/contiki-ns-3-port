@@ -17,7 +17,7 @@ ifdef WERROR
 CFLAGSWERROR=-Werror -pedantic -std=c99 -Werror
 endif
 CFLAGSNO = -Wall -g -I/usr/local/include $(CFLAGSWERROR)
-CFLAGS  += $(CFLAGSNO) -O
+CFLAGS  += $(CFLAGSNO) 
 
 ifeq ($(HOST_OS),Darwin)
 AROPTS = -r

@@ -18,7 +18,7 @@
 #include "net/rime.h"
 #include "net/rime/rime-udp.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG
 #include <stdio.h>
@@ -67,7 +67,7 @@ u8_t convert(const unsigned char c, uint8_t lower) {
 /*  Sets uip_lladdr value so that uip can derive a full address from the link layer address */
 #ifdef UIP_CONF_IPV6
 void assign_rimeaddr(const unsigned char * addr) {
-	uint8_t i, j = 0;
+	uint8_t i=0, j = 0;
 	union {
 		u8_t u8[8];
 	} lladdr;
@@ -102,24 +102,44 @@ void log_message(char *m1, char *m2) {
 }
 
 /*---------------------------------------------------------------------------*/
-int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
+int ContikiMain(char *node_id, int mode, const unsigned char *addr, char *app,
+		semaphores_t *sharedSemaphores) {
 
+	char sem_go_name[128]= "/ns_contiki_sem_go_";
+	char sem_done_name[128] = "/ns_contiki_sem_done_";
 	static int counter = 0;
 	static sem_t *sem_go, *sem_done;
 
-	char sem_go_name[128] = "/ns_contiki_sem_go_";
-	char sem_done_name[128] = "/ns_contiki_sem_done_";
+//	int value;
+//    sem_getvalue(&(sharedSemaphores->sem_go), &value);
+//
+//	int rtval;
+//	sem_getvalue(&(sharedSemaphores->sem_time), &rtval);
 
-	if ((sem_go = sem_open(sem_go_name, 0)) == SEM_FAILED )
-			perror("contiki sem_open(sem_go) failed");
+//
+//    sem_getvalue(sharedSemaphores.sem_go, &value);
+//	PRINTF("-- Wait on  sharedSemaphores.sem_go - %s is on %d\n", node_id, sharedSemaphores.sem_go);
+//	if (sem_wait(sharedSemaphores.sem_go) == -1)
+//		printf("sem_wait() failed: ");
+//	PRINTF("-- Wait on  sharedSemaphores.sem_go - %s is on\n", node_id);
+//	printf("Passed wait!!!\n");
+	printf("Process: %s \n",app);
 
-	if((sem_done = sem_open(sem_done_name, 0)) == SEM_FAILED)
-			perror("contiki sem_open(sem_done) failed");
+//	printf("sem_go_name %s\n", sem_go_name);
+//	strcat(sem_go_name, node_id);
+//	strcat(sem_done_name,node_id);
+//	printf("sem_go_name %s\n", sem_go_name);
+////
+//	if ((sem_go = sem_open(sem_go_name, 0)) == SEM_FAILED )
+//			perror("contiki sem_open(sem_go) failed");
+//
+//	if((sem_done = sem_open(sem_done_name, 0)) == SEM_FAILED)
+//			perror("contiki sem_open(sem_done) failed");
 
 
 
 	PRINTF("Contiki %d is on\n", getpid());
-	ipc_init(node_id);
+	ipc_init(node_id,sharedSemaphores);
 	PRINTF("Contiki %d executed ipc_init\n", getpid());
 
 	random_init(atoi(node_id));
@@ -151,14 +171,18 @@ int ContikiMain(char *node_id, int mode, const char *addr, char *app) {
 	while (1) {
 
 		PRINTF("contiki %d before new cycle %d\n",getpid(), counter);
-		sem_post(sem_done);
-		sem_wait(sem_go);
+		PRINTF("-- Wait on  sharedSemaphores.sem_go - %s \n", node_id);//, sharedSemaphores->sem_go);
+		sem_wait(&sharedSemaphores->sem_go);
+		PRINTF("-- Wait on  sharedSemaphores.sem_go - %s is on\n", node_id);
 		PRINTF("contiki %d new cycle %d\n", getpid(), counter);
 
 		/* Run a single cycle of the scheduler (event and poll processing) */
 		process_run();
 		/* Synchronize etimer with real-time */
 		etimer_request_poll();
+		PRINTF("-- Post on  sharedSemaphores->sem_done - %s is on\n", node_id);
+		sem_post(&sharedSemaphores->sem_done);
+		PRINTF("-- Post on  sharedSemaphores->sem_done - %s is on\n", node_id);
 	}
 
 	return 0;
@@ -170,7 +194,8 @@ int main(int argc, char *argv[]) {
 		PRINTF("missing arguments!\n");
 		exit(0);
 	}
-	ContikiMain(argv[1], atoi(argv[2]), argv[3], argv[4]);
+	semaphores_t *nullSemaphores;
+	ContikiMain(argv[1], atoi(argv[2]), argv[3], argv[4], nullSemaphores);
 
 	return 0;
 
