@@ -16,7 +16,7 @@
 #endif
 
 #ifndef UIP_BUFSIZE
-#define UIP_BUFSIZE 1300
+#define UIP_BUFSIZE 1500
 #endif
 
 #ifndef DATA_TYPE
@@ -187,6 +187,7 @@ size_t ipc_read(void *buf) {
 	{
 		PRINTF("ipc_read\n");
 #if DEBUG
+		puts("\n");
 		fwrite(buf,1,input_size,stdout);
 		puts("\n");
 #endif
@@ -210,15 +211,26 @@ void ipc_write(uint8_t *buf, size_t len) {
 
 	// writing data type and size first
 	memcpy(sharedSemaphores->traffic_in, &trafficId, 1);
-	memcpy(sharedSemaphores->traffic_in+1, &len, sizeof_size_t);
+	memcpy(sharedSemaphores->traffic_in + 1, &len, sizeof_size_t);
 
 	// now writing data of that size
-	memcpy(sharedSemaphores->traffic_in + sizeof_size_t+1, buf, len);
+	memcpy(sharedSemaphores->traffic_in + sizeof_size_t + 1, buf, len);
 
 	//PRINTF("Contiki wrote packet of size %d\n", len);
 #if DEBUG
-	puts("ipc_write\n");
-	fwrite(sharedSemaphores->traffic_in + sizeof_size_t+1, 1, len, stdout);
+	int i=0;
+	puts("Full packet\n");
+	for(i=0;i<len;i++){
+		PRINTF("{%c}", buf[i]);
+	}
+	PRINTF("\n %d -> IPC \n", (int)len);
+	fflush(stdout);
+	for(i=0;i<len;i++){
+		PRINTF("{%c}", (sharedSemaphores->traffic_in + sizeof_size_t + 1)[i]);
+	}
+	puts("\n");
+	puts("\nipc_write\n");
+	fwrite(sharedSemaphores->traffic_in + sizeof_size_t + 1, 1, len, stdout);
 	puts("\n");
 	fflush(stdout);
 #endif
@@ -324,7 +336,7 @@ uint64_t ipc_time(void) {
 	PRINTF("-- Wait  on  sem_time");//  - %s is on\n", sharedSemaphores->sem_time);
 
 	memcpy((void *) &now, sharedSemaphores->shm_time, size_time);
-	PRINTF("Time Now = %d \n", now);
+	PRINTF("Time Now = %d \n", (int)now);
 
 	PRINTF("-- Post  on  sem_time");//  - %s is on\n", sharedSemaphores->sem_time);
 	if (sem_post(&sharedSemaphores->sem_time) == -1)
