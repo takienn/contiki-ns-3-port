@@ -108,7 +108,7 @@ typedef unsigned short uip_stats_t;
 #else
 
 #define NETSTACK_CONF_NETWORK rime_driver
-#define NETSTACK_CONF_MAC     csma_driver
+#define NETSTACK_CONF_MAC     nullmac_driver //csma_driver
 #define NETSTACK_CONF_RDC     cxmac_driver
 #define NETSTACK_CONF_FRAMER  framer_802154
 #define NETSTACK_CONF_RADIO   nsradio_driver
