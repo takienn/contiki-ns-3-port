@@ -112,33 +112,7 @@ int ContikiMain(char *node_id, int mode, const unsigned char *addr, char *app,
 	static int counter = 0;
 	static sem_t *sem_go, *sem_done;
 
-//	int value;
-//    sem_getvalue(&(sharedSemaphores->sem_go), &value);
-//
-//	int rtval;
-//	sem_getvalue(&(sharedSemaphores->sem_time), &rtval);
-
-//
-//    sem_getvalue(sharedSemaphores.sem_go, &value);
-//	PRINTF("-- Wait on  sharedSemaphores.sem_go - %s is on %d\n", node_id, sharedSemaphores.sem_go);
-//	if (sem_wait(sharedSemaphores.sem_go) == -1)
-//		printf("sem_wait() failed: ");
-//	PRINTF("-- Wait on  sharedSemaphores.sem_go - %s is on\n", node_id);
-//	printf("Passed wait!!!\n");
 	printf("Process: %s \n",app);
-
-//	printf("sem_go_name %s\n", sem_go_name);
-//	strcat(sem_go_name, node_id);
-//	strcat(sem_done_name,node_id);
-//	printf("sem_go_name %s\n", sem_go_name);
-////
-//	if ((sem_go = sem_open(sem_go_name, 0)) == SEM_FAILED )
-//			perror("contiki sem_open(sem_go) failed");
-//
-//	if((sem_done = sem_open(sem_done_name, 0)) == SEM_FAILED)
-//			perror("contiki sem_open(sem_done) failed");
-
-
 
 	PRINTF("Contiki %d is on\n", getpid());
 	ipc_init(node_id,sharedSemaphores);
@@ -157,17 +131,21 @@ int ContikiMain(char *node_id, int mode, const unsigned char *addr, char *app,
 	/* Prepare process list */
 	process_init();
 	PRINTF("Contiki %d executed process_init\n", getpid());
+
 	/* Prepares a list of timers; starts the ctimer process */
 	ctimer_init();
 	PRINTF("Contiki %d executed ctimer_init\n", getpid());
+
 	/* Run configured Radio, RDC, MAC and Network init functions */
 	//queuebuf_init();
 	netstack_init();
 	PRINTF("Contiki %d executed netstack_init\n", getpid());
+
 	/* Start all processes listed in PROCINIT macro */
 	procinit_init();
 	PRINTF("Contiki %d executed procinit\n", getpid());
 	PRINTF("Contiki %d executed dlloader_load\n", getpid());
+
 	/* Run Autostart processes (Application Layer) */
 	autostart_start(autostart_processes);
 	PRINTF("Contiki %d executed autostart_start\n", getpid());
