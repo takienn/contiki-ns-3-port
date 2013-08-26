@@ -17,6 +17,7 @@
 #include "net/rime/rimeaddr.h"
 #include "net/rime.h"
 #include "net/rime/rime-udp.h"
+#include "net/uip-over-mesh.h"
 
 #define DEBUG 1
 
@@ -82,6 +83,7 @@ void assign_rimeaddr(const unsigned char * addr) {
 	memcpy(&uip_lladdr.addr, &lladdr, sizeof(uip_lladdr.addr));
 	PRINTLLADDR(lladdr);
 }
+
 //#else
 //void assign_addr(char *ipaddr, char *netmask) {
 //
@@ -148,6 +150,8 @@ int ContikiMain(char *node_id, int mode, const unsigned char *addr, char *app,
 	/* Assign node llid */
 	printf("Assigning lladdr %s\n", addr);
 	assign_rimeaddr(addr);
+#else
+	uip_over_mesh_init(0);
 #endif
 
 	/* Prepare process list */
@@ -167,6 +171,8 @@ int ContikiMain(char *node_id, int mode, const unsigned char *addr, char *app,
 	/* Run Autostart processes (Application Layer) */
 	autostart_start(autostart_processes);
 	PRINTF("Contiki %d executed autostart_start\n", getpid());
+
+
 	dlloader_load(app, NULL);
 	while (1) {
 

@@ -81,14 +81,14 @@ typedef unsigned short uip_stats_t;
 #define RIMEADDR_CONF_SIZE              8
 
 #define NETSTACK_CONF_NETWORK	uip_driver//sicslowpan_driver//
-#define NETSTACK_CONF_MAC    	csma_driver//
+#define NETSTACK_CONF_MAC    	nullmac_driver//csma_driver//
 #define NETSTACK_CONF_RDC     	nullrdc_driver//sicslowmac_driver//
 #define NETSTACK_CONF_FRAMER   	framer_802154//framer_nullmac//
 #define NETSTACK_CONF_RADIO   	nsradio_driver
 
 #define UIP_CONF_ROUTER                 0
 //#ifndef UIP_CONF_IPV6_RPL
-#define UIP_CONF_IPV6_RPL               0
+//#define UIP_CONF_IPV6_RPL               0
 //#endif /* UIP_CONF_IPV6_RPL */
 
 #define SICSLOWPAN_CONF_COMPRESSION_IPV6        0
