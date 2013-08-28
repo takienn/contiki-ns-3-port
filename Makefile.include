@@ -211,7 +211,7 @@ endif
 
 ifndef CUSTOM_RULE_C_TO_SO
 %.so: %.co $(PROJECT_OBJECTFILES) $(PROJECT_LIBRARIES) contiki-$(TARGET).a
-	$(CC) -fPIC -shared $(CFLAGS) -Wl,-z,defs,-Map=contiki-$(TARGET).map $(subst so,co,$@) obj_$(TARGET)/contiki-main.o contiki-$(TARGET).a -o $@
+	$(CC) -fPIC -shared $(CFLAGS) -Wl,-z,defs,-Map=contiki-$(TARGET).map $(subst so,co,$@) obj_$(TARGET)/*.o contiki-$(TARGET).a -o $@
 endif
 
 ifndef AROPTS
